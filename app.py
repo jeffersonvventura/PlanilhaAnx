@@ -462,7 +462,8 @@ def main():
                 mask_data = st.checkbox(
                     "🔒 Mascarar dados na pré-visualização",
                     value=True,
-                    help="Exibe apenas os 3 primeiros caracteres de cada valor, completando com '*'"
+                    help="Exibe apenas os 3 primeiros caracteres de cada valor, completando com '*'",
+                    key="mask_data_input"
                 )
                 
                 # Pré-visualização
@@ -475,9 +476,9 @@ def main():
                         display_df[col] = display_df[col].astype(str).apply(
                             lambda x: x[:3] + '*' * max(0, len(x) - 3) if len(x) > 3 else x
                         )
-                    safe_dataframe_display(display_df, use_container_width=True)
+                    safe_dataframe_display(display_df, width='stretch')
                 else:
-                    safe_dataframe_display(df.head(15), use_container_width=True)
+                    safe_dataframe_display(df.head(15), width='stretch')
                 
                 # Informações sobre as colunas
                 st.subheader("📊 Informações das Colunas")
@@ -499,7 +500,7 @@ def main():
                         "Numérica": "✅" if is_numeric else "❌"
                     })
                 
-                safe_dataframe_display(pd.DataFrame(col_info), use_container_width=True)
+                safe_dataframe_display(pd.DataFrame(col_info), width='stretch')
                 
             else:
                 st.error("❌ Erro ao ler o arquivo. Verifique o formato e tente novamente.")
@@ -713,7 +714,7 @@ def main():
             else:
                 example_df = df[[source_col, target_col]].head()
             
-            safe_dataframe_display(example_df, use_container_width=True)
+            safe_dataframe_display(example_df, width='stretch')
             
             # Verificar se há self-loops (origem = destino)
             self_loops = df[df[source_col].astype(str) == df[target_col].astype(str)]
@@ -765,7 +766,7 @@ def main():
                 )
             
             # Botão para gerar
-            if st.button("🚀 Gerar .anx", type="primary", use_container_width=True):
+            if st.button("🚀 Gerar .anx", type="primary", width='stretch'):
                 try:
                     with st.spinner("Gerando arquivos..."):
                         # Debug adicional: verificar dados antes do processamento
@@ -834,7 +835,7 @@ def main():
                                         data=f.read(),
                                         file_name=f"{output_filename}.anx",
                                         mime="application/octet-stream",
-                                        use_container_width=True
+                                        width='stretch'
                                     )
                             
                             with col2:
@@ -847,7 +848,7 @@ def main():
                                             data=f.read(),
                                             file_name=f"{output_filename}_agregado.csv",
                                             mime="text/csv",
-                                            use_container_width=True
+                                            width='stretch'
                                         )
                         else:
                             st.error("❌ Erro ao gerar os arquivos. Verifique a configuração.")
@@ -886,7 +887,25 @@ def main():
                     
                     # Pré-visualização do CSV agregado
                     st.subheader("👀 Pré-visualização do CSV Agregado")
-                    safe_dataframe_display(agg_df.head(10), use_container_width=True)
+                    
+                    # Opção de máscara para a saída
+                    mask_output_data = st.checkbox(
+                        "🔒 Mascarar dados na pré-visualização",
+                        value=True,
+                        help="Exibe apenas os 3 primeiros caracteres de cada valor, completando com '*'",
+                        key="mask_data_output"
+                    )
+                    
+                    if mask_output_data:
+                        # Criar DataFrame mascarado para exibição
+                        display_agg_df = agg_df.head(10).copy()
+                        for col in display_agg_df.columns:
+                            display_agg_df[col] = display_agg_df[col].astype(str).apply(
+                                lambda x: x[:3] + '*' * max(0, len(x) - 3) if len(x) > 3 else x
+                            )
+                        safe_dataframe_display(display_agg_df, width='stretch')
+                    else:
+                        safe_dataframe_display(agg_df.head(10), width='stretch')
         
         elif st.session_state.df is None:
             st.info("📤 Faça upload de um arquivo na aba 'Dados' para gerar os arquivos de saída.")
